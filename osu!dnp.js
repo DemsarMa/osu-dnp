@@ -53,23 +53,16 @@ osu_get_user_scores(osu_user_id, {mode: 'osu', limit: 1, include_fails: true}).t
         console.log(error);
     });
 */
-async function get_score_db() {
-    let score_json = null;
-    try {
-        score_json = await fsPromises.open('score_db.json', 'r+');
-        await score_json.truncate(4);
-    } finally {
-        if (score_json) {
-        await score_json.close();
-        }
-    }
-    console.log(fs.readFileSync('score_db.json', 'utf8', finished));
-    }
+
+let score_json = JSON.parse(fs.readFileSync('score_db.json', 'utf8'));
 
 client.on('ready', async () => {
-        const score = setInterval(() => osu_get_user_scores(osu_user_id, {mode: 'osu', limit: 1, include_fails: true}), 5000);
-        const score_temp = (await get_score_db());
-        if (score.beatmap_id != score_temp) {
+    setInterval(async () => {
+        const score = await osu_get_user_scores(osu_user_id, {mode: 'osu', limit: 1, include_fails: true});
+        if (score_json.beatmap_id === score.beatmap_id) return;
+        score_json = score;
+        fs.writeFileSync('score_db.json', JSON.stringify(score_json, null, 4));
+        if (score.beatmap_id != score_json.beatmap_id) {
             const embed = {
                 "color": 16711680,
                 "timestamp": new Date(),
@@ -104,8 +97,6 @@ client.on('ready', async () => {
                 ]
             };
             client.channels.cache.get(dc_channel).send({ embeds: [embed] });
-        } else if (score == score_temp) {
-            return;
         } else if (!score) {
             const embed_no_score = {
                 "color": 16711680,
@@ -116,10 +107,5 @@ client.on('ready', async () => {
             };
             client.channels.cache.get(dc_channel).send({ embeds: [embed_no_score] });
         }
-        fs.writeFileSync('score_db.json', JSON.stringify(score, null, 4)), (err) => {
-            if (err) {
-                console.log("err:", err);
-            };
-            console.log('Score has been saved!');
-        }
+    }, 5000);
     });
