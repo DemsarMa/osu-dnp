@@ -47,7 +47,7 @@ Simply run <kbd>run.bat</kbd> to start the bot!
 
 ## Feedback
 
-Have you found an issue? Report it [here](https://github.com/DemsarMa/git-watcher-builder/issues), or you can DM me on Discord: `MtkoGaming_TW#0001`
+Have you found an issue? Report it by DMing me on Discord: `MtkoGaming_TW#0001`
 
 ## Contributing
 
