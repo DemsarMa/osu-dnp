@@ -45,24 +45,26 @@ async function osu_get_user_scores(user_id, params) {
     }); 
     return data;
 }
-/*
+
 osu_get_user_scores(osu_user_id, {mode: 'osu', limit: 1, include_fails: true}).then((data) => {
         console.log(data);
     })  
     .catch((error) => {
         console.log(error);
     });
-*/
 
-let score_json = JSON.parse(fs.readFileSync('score_db.json', 'utf8'));
 
-client.on('ready', async () => {
-    setInterval(async () => {
+    client.on('ready', async () => {
+        setInterval(async () => {
+        const score_json = JSON.parse(fs.readFileSync('score_db.json', 'utf8'));
         const score = await osu_get_user_scores(osu_user_id, {mode: 'osu', limit: 1, include_fails: true});
-        if (score_json.beatmap_id === score.beatmap_id) return;
-        score_json = score;
-        fs.writeFileSync('score_db.json', JSON.stringify(score_json, null, 4));
-        if (score.beatmap_id != score_json.beatmap_id) {
+        if (score_json.beatmap_id === score.beatmap_id) {
+            console.log("Same play");
+            return;
+        }
+        fs.writeFileSync('score_db.json', JSON.stringify(score, null, 4));
+        if (score.beatmap_id !== score_json.beatmap_id) {
+            console.log("New play");
             const embed = {
                 "color": 16711680,
                 "timestamp": new Date(),
