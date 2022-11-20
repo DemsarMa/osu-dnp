@@ -50,12 +50,11 @@ async function osu_get_user_scores(user_id, params) {
         const score_json = JSON.parse(fs.readFileSync('score_db.json', 'utf8'));
         const score = await osu_get_user_scores(osu_user_id, {mode: 'osu', limit: 1, include_fails: true});
         if (score_json[0].beatmap.id === score[0].beatmap.id) {
-            console.log(year, "-", month, "-", date, " ", hours, ":", minutes, ":", seconds, 'No new score');
             return;
         }
         fs.writeFileSync('score_db.json', JSON.stringify(score, null, 4));
         if (score[0].beatmap.id !== score_json[0].beatmap.id) {
-            console.log(Date, "New play has been detected: ", score[0].beatmap.title, ", sending to Discord...");
+            console.log(year, "-", month, "-", date, " ", hours, ":", minutes, ":", seconds, "New play has been detected: ", score[0].beatmap.title, ", sending to Discord...");
             const embed = {
                 "color": 16711680,
                 "timestamp": new Date(),
