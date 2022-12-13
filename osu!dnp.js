@@ -42,6 +42,39 @@ let hours = date_ob.getHours();
 let minutes = date_ob.getMinutes();
 let seconds = date_ob.getSeconds();
 
+/*
+const osu_db = mongoose.model('osu_id_temp_int', osuid_schema);
+  const collection = db.collection('mycollection');
+  collection.find({}).toArray((err, docs) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+
+    setInterval(() => {
+        // Use the MongoDB findOne() method to retrieve a single ID from the database
+        collection.findOne({}, (err, doc) => {
+          if (err) {
+            console.error(err);
+            return;
+          }
+  
+          // Use the JavaScript Set object to store the IDs that have been retrieved so far
+          // to ensure that the same ID is not retrieved again
+          const retrievedIds = new Set();
+  
+          // Return the retrieved ID from the function and use it as the input for the
+          // function that needs a feeder
+          const id = doc._id;
+          if (!retrievedIds.has(id)) {
+            retrievedIds.add(id);
+            myFunction(id);
+          }
+        });
+      }, 1000); // repeat this process every second
+    });
+*/
+
 //authorize with osu!api
 async function osu_authorize() {
 const response = await axios.post('https://osu.ppy.sh/oauth/token', {
@@ -50,6 +83,8 @@ const response = await axios.post('https://osu.ppy.sh/oauth/token', {
     grant_type: 'client_credentials',
     scope: 'public',
 });
+const access_token = response.data.access_token;
+module.exports = access_token;
 return response.data.access_token;
 }
 
@@ -131,7 +166,7 @@ async function osu_get_user_scores(user_id, params) {
                     },
                     {
                         "name": "Star rating",
-                        "value": '' + score[0].beatmap.difficulty_rating,
+                        "value": '' + score[0].beatmap.difficulty_rating + '*',
                         "inline": true
                     },
                 ]
