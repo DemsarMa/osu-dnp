@@ -5,6 +5,7 @@ const axios = require('axios');
 const mongoose = require('./mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
+const { watchModel } = require('../models/watch.model');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages] });
 client.login(process.env.DISCORD_TOKEN);
 
@@ -43,17 +44,9 @@ let minutes = date_ob.getMinutes();
 let seconds = date_ob.getSeconds();
 
 /*
-const osu_db = mongoose.model('osu_id_temp_int', osuid_schema);
-  const collection = db.collection('mycollection');
-  collection.find({}).toArray((err, docs) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-
     setInterval(() => {
         // Use the MongoDB findOne() method to retrieve a single ID from the database
-        collection.findOne({}, (err, doc) => {
+        watchModel.findOne({}, (err, doc) => {
           if (err) {
             console.error(err);
             return;
@@ -71,9 +64,7 @@ const osu_db = mongoose.model('osu_id_temp_int', osuid_schema);
             myFunction(id);
           }
         });
-      }, 1000); // repeat this process every second
-    });
-*/
+      }, 1000);*/
 
 //authorize with osu!api
 async function osu_authorize() {
@@ -83,8 +74,6 @@ const response = await axios.post('https://osu.ppy.sh/oauth/token', {
     grant_type: 'client_credentials',
     scope: 'public',
 });
-const access_token = response.data.access_token;
-module.exports = access_token;
 return response.data.access_token;
 }
 
@@ -106,13 +95,6 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 	//console.log(interaction);
 });
-
-//user id queue worker
-/*async function osu_user_id_queue() {
-//collect osu_user_id from interaction
-const osu_id_temp_q = await osu_db.findOne('osu_id_temp_int');
-console.log(osu_id_temp_q);
-}*/
 
 //score request
 async function osu_get_user_scores(user_id, params) {
