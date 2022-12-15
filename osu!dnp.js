@@ -5,7 +5,7 @@ const axios = require('axios');
 const mongoose = require('./mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
-const { watchModel } = require('../models/watch.model');
+const { watchModel } = require('./models/watch.model');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages] });
 client.login(process.env.DISCORD_TOKEN);
 
@@ -43,28 +43,10 @@ let hours = date_ob.getHours();
 let minutes = date_ob.getMinutes();
 let seconds = date_ob.getSeconds();
 
-/*
-    setInterval(() => {
-        // Use the MongoDB findOne() method to retrieve a single ID from the database
-        watchModel.findOne({}, (err, doc) => {
-          if (err) {
-            console.error(err);
-            return;
-          }
-  
-          // Use the JavaScript Set object to store the IDs that have been retrieved so far
-          // to ensure that the same ID is not retrieved again
-          const retrievedIds = new Set();
-  
-          // Return the retrieved ID from the function and use it as the input for the
-          // function that needs a feeder
-          const id = doc._id;
-          if (!retrievedIds.has(id)) {
-            retrievedIds.add(id);
-            myFunction(id);
-          }
-        });
-      }, 1000);*/
+setInterval(() => {
+    const osu_user_id = watchModel.findOne({ osu_id });
+    return osu_user_id;
+    }, 1000);
 
 //authorize with osu!api
 async function osu_authorize() {
@@ -93,7 +75,6 @@ client.on(Events.InteractionCreate, async interaction => {
 		console.error(error);
 		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 	}
-	//console.log(interaction);
 });
 
 //score request
@@ -113,7 +94,6 @@ async function osu_get_user_scores(user_id, params) {
         setInterval(async () => {
         const score_json = JSON.parse(fs.readFileSync('score_db.json', 'utf8'));
         const score = await osu_get_user_scores(osu_user_id, {mode: 'osu', limit: 1, include_fails: true});
-        //await osu_user_id_queue();
         if (score_json[0].beatmap.id === score[0].beatmap.id) {
             return;
         }
