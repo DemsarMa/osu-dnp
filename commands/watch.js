@@ -31,6 +31,20 @@ async function osu_get_user(osu_id, params) {
 	return data;
 }
 
+const assign_embed = {
+    "color": 16711680,
+    "timestamp": new Date(),
+    "footer": {
+    "text": "osu!dnp"
+    },
+    "thumbnail": {
+    "url": "https://a.ppy.sh/" + osu_id,
+    },
+    "author": {
+    "name": score[0].user.username + " has been successfully added to watch list!",
+    }
+};
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('watch')
@@ -49,19 +63,18 @@ module.exports = {
         if (watch) {
             return await interaction.followUp('You are already watching this user!');
         }
-
-        await watchModel.create({ osu_id });
 		
 		const osu_user = await osu_get_user(osu_id);
 
 		console.log(osu_user.username);
 		const watch_channel = await interaction.guild.channels.create({
-			name: "osu-" + osu_user.username + "np",
+			name: "osu-" + osu_user.username + "-np",
 			type: ChannelType.GuildText,
-			parent: '1052516849067249664',
-			topic: "osu! watch channel for user" + osu_user.username 
+			parent: process.env.DISCORD_CATEGORY_ID,
+			topic: "osu! watch channel for user " + osu_user.username 
 		});
 		console.log(watch_channel);
-        await interaction.followUp(`Player ${osu_user.username} added to watch list with ID: ${osu_id}`);
+		await watchModel.create({ osu_id, watch_channel });
+        await interaction.followUp({ embeds: [assign_embed] });
     },
 };

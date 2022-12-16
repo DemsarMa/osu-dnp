@@ -43,14 +43,17 @@ let hours = date_ob.getHours();
 let minutes = date_ob.getMinutes();
 let seconds = date_ob.getSeconds();
 
-setInterval(() => {
-    const osu_user_id = watchModel.findOne({ osu_id });
-    return osu_user_id;
-    }, 1000);
+async function db_load() {
+for await (const osu_data of watchModel.find()) {
+    console.log(osu_data.osu_id, osu_data.watch_channel);
+    const osu_id = osu_data.osu_id;
+    const watch_channel = osu_data.watch_channel;
+    return osu_id, watch_channel;
+}}
 
 //authorize with osu!api
 async function osu_authorize() {
-const response = await axios.post('https://osu.ppy.sh/oauth/token', {
+const response = await axios.post('https://osu.ppy.sh/oauth/token', {   
     client_id: osuid,
     client_secret: osusecret,
     grant_type: 'client_credentials',
@@ -85,15 +88,22 @@ async function osu_get_user_scores(user_id, params) {
             Authorization: 'Bearer ' + access_token,
         },
         params
-    }); 
+    })/*.then (response => {
+        if (response.status >= 200 && response.status < 300) {
+            console.log(response.status);
+        }
+    }).catch(error => {
+        console.log(error);
+    });*/
     return data;
 }
-
 
     client.on('ready', async () => {
         setInterval(async () => {
         const score_json = JSON.parse(fs.readFileSync('score_db.json', 'utf8'));
+        /*const osu_user_id = await db_load();*/
         const score = await osu_get_user_scores(osu_user_id, {mode: 'osu', limit: 1, include_fails: true});
+        
         if (score_json[0].beatmap.id === score[0].beatmap.id) {
             return;
         }
