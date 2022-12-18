@@ -45,10 +45,12 @@ let seconds = date_ob.getSeconds();
 
 async function db_load() {
     for await (const osu_data of watchModel.find()) {
+        console.log(osu_data);
       return {
         osu_id: osu_data.osu_id,
         watch_channel: osu_data.watch_channel,
-        osu_score: osu_data.osu_score
+        osu_score_db: osu_data.osu_score_db,
+        _id: osu_data._id
       };
     }
   }
@@ -110,20 +112,26 @@ async function osu_get_user_scores(user_id, params) {
 
 client.on("ready", async () => {
     setInterval(async () => {
-        const { osu_id: osu_user_id, watch_channel: dc_channel, osu_score: osu_score } = await db_load();
-        console.log(osu_score);
+        const { _id: db_id, osu_id: osu_user_id, watch_channel: dc_channel, osu_score_db: osu_score_db } = await db_load();
+        console.log(osu_score_db);
         const dc_channel_id = dc_channel.slice(2, -1);
         const score = await osu_get_user_scores(osu_user_id, {
             mode: "osu",
             limit: 1,
             include_fails: true,
         });
-        if (osu_score === score[0].beatmap.id) {
+        if (osu_score_db === score[0].beatmap.id) {
             return;
         }
         console.log(score[0].beatmap.id);
-        await watchModel.findOneAndUpdate({ osu_id: osu_user_id }, { watch_channel: dc_channel }, { $set: { osu_score: score[0].beatmap.id }}).then(() => console.log("osu!dnp osu_score has been updated"));
-        if (score[0].beatmap.id !== osu_score) {
+        watchModel.updateOne({ _id: db_id }, { osu_score_db: score[0].beatmap.id }, (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(res);
+            }
+        });
+        if (score[0].beatmap.id !== osu_score_db) {
             console.log(year, "-", month, "-", date, " ", hours, ":", minutes, ":", seconds, "New play has been detected: ", score[0].beatmapset.title, ", sending to Discord...");
             const embed = {
                 color: 16711680,
