@@ -47,7 +47,8 @@ async function db_load() {
     for await (const osu_data of watchModel.find()) {
       return {
         osu_id: osu_data.osu_id,
-        watch_channel: osu_data.watch_channel
+        watch_channel: osu_data.watch_channel,
+        osu_score: osu_data.osu_score
       };
     }
   }
@@ -109,19 +110,20 @@ async function osu_get_user_scores(user_id, params) {
 
 client.on("ready", async () => {
     setInterval(async () => {
-        const score_json = JSON.parse(fs.readFileSync("score_db.json", "utf8"));
-        const { osu_id: osu_user_id, watch_channel: dc_channel } = await db_load();
+        const { osu_id: osu_user_id, watch_channel: dc_channel, osu_score: osu_score } = await db_load();
+        console.log(osu_score);
         const dc_channel_id = dc_channel.slice(2, -1);
         const score = await osu_get_user_scores(osu_user_id, {
             mode: "osu",
             limit: 1,
             include_fails: true,
         });
-        if (score_json[0].beatmap.id === score[0].beatmap.id) {
+        if (osu_score === score[0].beatmap.id) {
             return;
         }
-        fs.writeFileSync("score_db.json", JSON.stringify(score, null, 4));
-        if (score[0].beatmap.id !== score_json[0].beatmap.id) {
+        console.log(score[0].beatmap.id);
+        await watchModel.findOneAndUpdate({ osu_id: osu_user_id }, { watch_channel: dc_channel }, { $set: { osu_score: score[0].beatmap.id }}).then(() => console.log("osu!dnp osu_score has been updated"));
+        if (score[0].beatmap.id !== osu_score) {
             console.log(year, "-", month, "-", date, " ", hours, ":", minutes, ":", seconds, "New play has been detected: ", score[0].beatmapset.title, ", sending to Discord...");
             const embed = {
                 color: 16711680,
