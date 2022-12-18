@@ -87,17 +87,24 @@ client.on(Events.InteractionCreate, async (interaction) => {
 //score request
 async function osu_get_user_scores(user_id, params) {
     const access_token = await osu_authorize();
+    try {
     const { data } = await axios.get(endpoint + "users/" + user_id + "/scores/recent", {
         headers: {
             Authorization: "Bearer " + access_token,
         },
         params,
     });
-    if (data.status === 404) {
-        console.log("User not found!");
-        return;
-    }
     return data;
+} catch (error) {
+    if (error.response.status === 404) {
+        console.log("User not found!, osu!dnp osu_get_user_scores");
+        return;
+    } else {
+        console.log("An unknown error has occured, osu!dnp osu_get_user_scores", error);
+    }
+} finally {
+    console.log("osu!dnp osu_get_user_scores has been executed");
+}
 }
 
 client.on("ready", async () => {
@@ -109,7 +116,6 @@ client.on("ready", async () => {
             limit: 1,
             include_fails: true,
         });
-
         if (score_json[0].beatmap.id === score[0].beatmap.id) {
             return;
         }

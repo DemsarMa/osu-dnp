@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, Collection, ChannelType } = require("discord.js");
+const { Client, SlashCommandBuilder, Collection, ChannelType, GatewayIntentBits } = require("discord.js");
 const mongoose = require("../mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -22,6 +22,7 @@ async function osu_authorize() {
 
 async function osu_get_user(osu_id, params) {
     const access_token = await osu_authorize();
+    try {
     const { data } = await axios.get(endpoint + "users/" + osu_id, {
         headers: {
             Authorization: "Bearer " + access_token,
@@ -29,28 +30,23 @@ async function osu_get_user(osu_id, params) {
         params,
     });
     return data;
-}
+} catch (error) {
+    if (error.response.status === 404) {
+      console.log('User not found, watch.js osu_get_user');
+    } else {
+        console.log('An unknown error occurred, watch.js osu_get_user', error);
+    }
+} finally {
+    console.log("osu!dnp osu_get_user has been executed");
+}}
 
-const assign_embed = {
-    color: 16711680,
-    timestamp: new Date(),
-    footer: {
-        text: "osu!dnp",
-    },
-    thumbnail: {
-        url: "https://a.ppy.sh/" + score[0].user.id,
-    },
-    author: {
-        name: score[0].user.username + " has been successfully added to watch list!",
-    },
-};
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("watch")
         .setDescription("Start a new watch session")
         .addStringOption((option) =>
-            option.setName("osu_user_id").setDescription("The osu! user ID to watch").setRequired(true)
+        option.setName("osu_user_id").setDescription("The osu! user ID to watch").setRequired(true)
         ),
 
     async execute(interaction) {
@@ -62,10 +58,24 @@ module.exports = {
         if (watch) {
             return await interaction.followUp("You are already watching this user!");
         }
-
+        
         const osu_user = await osu_get_user(osu_id);
-
+        
         console.log(osu_user.username);
+        const assign_embed = {
+            color: 16711680,
+            timestamp: new Date(),
+            footer: {
+                text: "osu!dnp",
+            },
+            thumbnail: {
+                url: "https://a.ppy.sh/" + osu_id,
+            },
+            author: {
+                name: osu_user.username + " has been successfully added to watch list!",
+            },
+            description: "osu!dnp will now send a message to this channel every time " + watch_channel + " plays a new beatmap!",
+        };
         const watch_channel = await interaction.guild.channels.create({
             name: "osu-" + osu_user.username + "-np",
             type: ChannelType.GuildText,
