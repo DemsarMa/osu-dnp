@@ -45,12 +45,12 @@ let seconds = date_ob.getSeconds();
 
 async function db_load() {
     for await (const osu_data of watchModel.find()) {
-        console.log(osu_data.osu_id, osu_data.watch_channel);
-        const osu_id = osu_data.osu_id;
-        const watch_channel = osu_data.watch_channel;
-        return osu_id, watch_channel;
+      return {
+        osu_id: osu_data.osu_id,
+        watch_channel: osu_data.watch_channel
+      };
     }
-}
+  }
 
 //authorize with osu!api
 async function osu_authorize() {
@@ -110,7 +110,8 @@ async function osu_get_user_scores(user_id, params) {
 client.on("ready", async () => {
     setInterval(async () => {
         const score_json = JSON.parse(fs.readFileSync("score_db.json", "utf8"));
-        const { osu_user_id, dc_channel } = await db_load();
+        const { osu_id: osu_user_id, watch_channel: dc_channel } = await db_load();
+        const dc_channel_id = dc_channel.slice(2, -1);
         const score = await osu_get_user_scores(osu_user_id, {
             mode: "osu",
             limit: 1,
@@ -155,7 +156,7 @@ client.on("ready", async () => {
                     },
                 ],
             };
-            client.channels.cache.get(dc_channel).send({ embeds: [embed] });
+            client.channels.cache.get(dc_channel_id).send({ embeds: [embed] });
         } else if (!score) {
             const embed_no_score = {
                 color: 16711680,
@@ -164,7 +165,7 @@ client.on("ready", async () => {
                     name: "No score has been found",
                 },
             };
-            client.channels.cache.get(dc_channel).send({ embeds: [embed_no_score] });
+            client.channels.cache.get(dc_channel_id).send({ embeds: [embed_no_score] });
         }
     }, 5000);
 });

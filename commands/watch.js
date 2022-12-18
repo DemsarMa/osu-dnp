@@ -8,7 +8,6 @@ const { watchModel } = require("../models/watch.model");
 
 const osuid = process.env.OSU_CLIENT_ID;
 const osusecret = process.env.OSU_CLIENT_SECRET;
-const dc_channel = process.env.DISCORD_CHANNEL_ID;
 
 async function osu_authorize() {
     const response = await axios.post("https://osu.ppy.sh/oauth/token", {
@@ -52,16 +51,20 @@ module.exports = {
     async execute(interaction) {
         await interaction.deferReply();
         const osu_id = interaction.options.getString("osu_user_id");
-        console.log(osu_id);
-
         const watch = await watchModel.findOne({ osu_id });
         if (watch) {
             return await interaction.followUp("You are already watching this user!");
         }
         
         const osu_user = await osu_get_user(osu_id);
-        
-        console.log(osu_user.username);
+        const watch_channel = await interaction.guild.channels.create({
+            name: "osu-" + osu_user.username + "-np",
+            type: ChannelType.GuildText,
+            parent: process.env.DISCORD_CATEGORY_ID,
+            topic: "osu! watch channel for user " + osu_user.username,
+        });
+        const dc_channel = '<#' + watch_channel + '>';
+
         const assign_embed = {
             color: 16711680,
             timestamp: new Date(),
@@ -74,15 +77,8 @@ module.exports = {
             author: {
                 name: osu_user.username + " has been successfully added to watch list!",
             },
-            description: "osu!dnp will now send a message to this channel every time " + watch_channel + " plays a new beatmap!",
+            description: "osu!dnp will now send a message to this channel every time " + dc_channel + " plays a new beatmap!",
         };
-        const watch_channel = await interaction.guild.channels.create({
-            name: "osu-" + osu_user.username + "-np",
-            type: ChannelType.GuildText,
-            parent: process.env.DISCORD_CATEGORY_ID,
-            topic: "osu! watch channel for user " + osu_user.username,
-        });
-        console.log(watch_channel);
         await watchModel.create({ osu_id, watch_channel });
         await interaction.followUp({ embeds: [assign_embed] });
     },
