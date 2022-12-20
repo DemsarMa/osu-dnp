@@ -44,16 +44,15 @@ let minutes = date_ob.getMinutes();
 let seconds = date_ob.getSeconds();
 
 async function db_load() {
-    for await (const osu_data of watchModel.find()) {
+    watchModel.find().forEach(async (osu_data) => {
         console.log(osu_data);
-      return {
-        osu_id: osu_data.osu_id,
-        watch_channel: osu_data.watch_channel,
-        osu_score_db: osu_data.osu_score_db,
-        _id: osu_data._id
-      };
-    }
-  }
+        return {
+            osu_id: osu_data.osu_id,
+            watch_channel: osu_data.watch_channel,
+            osu_score_db: osu_data.osu_score_db,
+        };
+    });
+}
 
 //authorize with osu!api
 async function osu_authorize() {
@@ -91,47 +90,45 @@ client.on(Events.InteractionCreate, async (interaction) => {
 async function osu_get_user_scores(user_id, params) {
     const access_token = await osu_authorize();
     try {
-    const { data } = await axios.get(endpoint + "users/" + user_id + "/scores/recent", {
-        headers: {
-            Authorization: "Bearer " + access_token,
-        },
-        params,
-    });
-    return data;
-} catch (error) {
-    if (error.response.status === 404) {
-        console.log("User not found!, osu!dnp osu_get_user_scores");
-        return;
-    } else {
-        console.log("An unknown error has occured, osu!dnp osu_get_user_scores", error);
+        const { data } = await axios.get(endpoint + "users/" + user_id + "/scores/recent", {
+            headers: {
+                Authorization: "Bearer " + access_token,
+            },
+            params,
+        });
+        return data;
+    } catch (error) {
+        if (error.response.status === 404) {
+            console.log("User not found!, osu!dnp osu_get_user_scores");
+            return;
+        } else {
+            console.log("An unknown error has occured, osu!dnp osu_get_user_scores", error);
+        }
+    } finally {
+        console.log("osu!dnp osu_get_user_scores has been executed");
     }
-} finally {
-    console.log("osu!dnp osu_get_user_scores has been executed");
-}
 }
 
 client.on("ready", async () => {
     setInterval(async () => {
-        const { _id: db_id, osu_id: osu_user_id, watch_channel: dc_channel, osu_score_db: osu_score_db } = await db_load();
-        console.log(osu_score_db);
+        const { osu_id: osu_user_id, watch_channel: dc_channel, osu_score_db: osu_score_db } = await db_load();
         const dc_channel_id = dc_channel.slice(2, -1);
         const score = await osu_get_user_scores(osu_user_id, {
             mode: "osu",
             limit: 1,
             include_fails: true,
         });
-        if (osu_score_db === score[0].beatmap.id) {
+        if (osu_score_db == score[0].beatmap.id) {
             return;
         }
-        console.log(score[0].beatmap.id);
-        watchModel.updateOne({ _id: db_id }, { osu_score_db: score[0].beatmap.id }, (err, res) => {
+        watchModel.updateOne({ osu_id: osu_user_id }, { osu_score_db: score[0].beatmap.id }, (err, res) => {
             if (err) {
                 console.log(err);
             } else {
                 console.log(res);
             }
         });
-        if (score[0].beatmap.id !== osu_score_db) {
+        if (score[0].beatmap.id != osu_score_db) {
             console.log(year, "-", month, "-", date, " ", hours, ":", minutes, ":", seconds, "New play has been detected: ", score[0].beatmapset.title, ", sending to Discord...");
             const embed = {
                 color: 16711680,

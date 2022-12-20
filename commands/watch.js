@@ -77,7 +77,7 @@ module.exports = {
             author: {
                 name: osu_user.username + " has been successfully added to watch list!",
             },
-            description: "osu!dnp will now send a message to this channel every time " + dc_channel + " plays a new beatmap!",
+            description: "osu!dnp will now send a message to this channel every time " + osu_user.username + " plays a new beatmap: " + dc_channel
         };
         await watchModel.create({ osu_id, watch_channel, osu_score_db: 0 });
         await interaction.followUp({ embeds: [assign_embed] });
