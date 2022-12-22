@@ -6,6 +6,7 @@ const mongoose = require("./mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 const { watchModel } = require("./models/watch.model");
+const { osu_authorize } = require("./modules/osu_login");
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages],
 });
@@ -33,8 +34,6 @@ for (const file of commandFiles) {
 
 //a bunch of variables
 const endpoint = "https://osu.ppy.sh/api/v2/";
-const osuid = process.env.OSU_CLIENT_ID;
-const osusecret = process.env.OSU_CLIENT_SECRET;
 let date_ob = new Date();
 let date = ("0" + date_ob.getDate()).slice(-2);
 let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
@@ -42,17 +41,6 @@ let year = date_ob.getFullYear();
 let hours = date_ob.getHours();
 let minutes = date_ob.getMinutes();
 let seconds = date_ob.getSeconds();
-
-//authorize with osu!api
-async function osu_authorize() {
-    const response = await axios.post("https://osu.ppy.sh/oauth/token", {
-        client_id: osuid,
-        client_secret: osusecret,
-        grant_type: "client_credentials",
-        scope: "public",
-    });
-    return response.data.access_token;
-}
 
 //slash command handler
 client.on(Events.InteractionCreate, async (interaction) => {
@@ -77,11 +65,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 //score request
 async function osu_get_user_scores(user_id, params) {
-    const access_token = await osu_authorize();
     try {
         const { data } = await axios.get(endpoint + "users/" + user_id + "/scores/recent", {
             headers: {
-                Authorization: "Bearer " + access_token,
+                Authorization: "Bearer " + (await osu_authorize()),
             },
             params,
         });
@@ -96,6 +83,12 @@ async function osu_get_user_scores(user_id, params) {
         } else if (error.response.status === 401) {
             console.log("Unauthorized, osu!dnp osu_get_user_scores");
             return;
+        } else if (error.response.status === 429) {
+            console.log("Too many requests, blame osu!, osu!dnp osu_get_user_scores");
+            return;
+        } else if (error.response.status === 500) {
+            console.log("Internal server error on osu!, osu!dnp osu_get_user_scores");
+            return; 
         } else {
             console.log("An unknown error has occured, osu!dnp osu_get_user_scores", error);
         }
@@ -105,7 +98,7 @@ async function osu_get_user_scores(user_id, params) {
 client.on("ready", async () => {
     setInterval(async () => {
         watchModel.find().then(async (res) => {
-            res.forEach(async (val) => {
+        res.forEach(async (val) => {
         const dc_channel_id = val.watch_channel.slice(2, -1);
         const score = await osu_get_user_scores(val.osu_id, {
             mode: "osu",
@@ -172,7 +165,6 @@ client.on("ready", async () => {
             };
             client.channels.cache.get(dc_channel_id).send({ embeds: [embed_no_score] });
         }
-    });
-});
-}, 5000);
+    })});
+    }, 5000);
 });
