@@ -1,10 +1,12 @@
 const axios = require("axios");
+const fs = require('fs');
 const dotenv = require("dotenv");
 dotenv.config();
 const osuid = process.env.OSU_CLIENT_ID;
 const osusecret = process.env.OSU_CLIENT_SECRET;
 
 async function osu_authorize() {
+    console.log("osu! API authorization started.");
     try {
         const response = await axios.post("https://osu.ppy.sh/oauth/token", {
             client_id: osuid,
@@ -12,7 +14,9 @@ async function osu_authorize() {
             grant_type: "client_credentials",
             scope: "public",
         });
-        return response.data.access_token;
+        console.log("osu! API authorization successful.");
+        console.log("osu! API access token: " + response.data.access_token);
+        fs.writeFileSync('./access_token.txt', response.data.access_token);
     } catch (error) {
         if (error.response.status === 401) {
             console.log("osu! API authorization failed.");

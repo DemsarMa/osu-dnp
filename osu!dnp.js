@@ -2,18 +2,27 @@ const fs = require("fs");
 const path = require("path");
 const { Client, Intents, GatewayIntentBits, Collection, REST, Routes, Events } = require("discord.js");
 const axios = require("axios");
-const mongoose = require("./mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 const { watchModel } = require("./models/watch.model");
 const { osu_authorize } = require("./modules/osu_login");
+const jwt_decode = require('jwt-decode');
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages],
 });
 client.login(process.env.DISCORD_TOKEN);
 
-client.on("ready", () => {
+client.on("ready", async () => {
     console.log("osu!dnp bot is ready! Start making scores!");
+    client.user.setActivity("osu!dnp", { type: "PLAYING" });
+    client.user.setStatus("dnd");
+    const token_decoded = jwt_decode(fs.readFileSync('./access_token.txt', 'utf8'));
+    if (token_decoded.exp < Math.floor(Date.now() / 1000)) {
+        console.log("Access token expired, refreshing...");
+        await osu_authorize();
+    } else {
+        console.log("Access token valid, no need to refresh.");
+    }
 });
 
 //slash command initialization
@@ -46,12 +55,12 @@ let seconds = date_ob.getSeconds();
 client.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
     const command = interaction.client.commands.get(interaction.commandName);
-
+    
     if (!command) {
         console.error(`No command matching ${interaction.commandName} was found.`);
         return;
     }
-
+    
     try {
         await command.execute(interaction);
     } catch (error) {
@@ -65,10 +74,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 //score request
 async function osu_get_user_scores(user_id, params) {
+    const access_token = fs.readFileSync('./access_token.txt', 'utf8');
     try {
         const { data } = await axios.get(endpoint + "users/" + user_id + "/scores/recent", {
             headers: {
-                Authorization: "Bearer " + (await osu_authorize()),
+                Authorization: "Bearer " + access_token,
             },
             params,
         });
