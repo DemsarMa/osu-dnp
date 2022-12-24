@@ -15,8 +15,8 @@ client.login(process.env.DISCORD_TOKEN);
 client.on("ready", async () => {
     console.log("osu!dnp bot is ready! Start making scores!");
     client.user.setActivity("osu!dnp", { type: "PLAYING" });
-    client.user.setStatus("dnd");
-    const token_decoded = jwt_decode(fs.readFileSync('./access_token.txt', 'utf8'));
+    client.user.setStatus("online");
+    const token_decoded = jwt_decode(process.env.OSU_ACCESS_TOKEN);
     if (token_decoded.exp < Math.floor(Date.now() / 1000)) {
         console.log("Access token expired, refreshing...");
         await osu_authorize();
@@ -74,7 +74,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 //score request
 async function osu_get_user_scores(user_id, params) {
-    const access_token = fs.readFileSync('./access_token.txt', 'utf8');
+    const access_token = process.env.OSU_ACCESS_TOKEN;
     try {
         const { data } = await axios.get(endpoint + "users/" + user_id + "/scores/recent", {
             headers: {
@@ -176,5 +176,5 @@ client.on("ready", async () => {
             client.channels.cache.get(dc_channel_id).send({ embeds: [embed_no_score] });
         }
     })});
-    }, 5000);
+    }, 8000);
 });

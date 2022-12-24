@@ -15,8 +15,7 @@ async function osu_authorize() {
             scope: "public",
         });
         console.log("osu! API authorization successful.");
-        console.log("osu! API access token: " + response.data.access_token);
-        fs.writeFileSync('./access_token.txt', response.data.access_token);
+        process.env.OSU_ACCESS_TOKEN = response.data.access_token;
     } catch (error) {
         if (error.response.status === 401) {
             console.log("osu! API authorization failed.");
