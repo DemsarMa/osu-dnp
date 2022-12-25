@@ -4,10 +4,11 @@ const dotenv = require("dotenv");
 dotenv.config();
 const endpoint = "https://osu.ppy.sh/api/v2/";
 const axios = require("axios");
+const { getToken } = require("../modules/osu_login");
 const { watchModel } = require("../models/watch.model");
 
 async function osu_get_user(osu_id, params) {
-    const access_token = process.env.OSU_ACCESS_TOKEN;
+    const access_token = await getToken();
     try {
         const { data } = await axios.get(endpoint + "users/" + osu_id, {
             headers: {
@@ -77,7 +78,7 @@ module.exports = {
         const dc_channel = "<#" + watch_channel + ">";
 
         const assign_embed = {
-            color: 16711680,
+            color: 1501988,
             timestamp: new Date(),
             footer: {
                 text: "osu!dnp",

@@ -16,7 +16,7 @@ module.exports = {
         row = new ActionRowBuilder()
           .addComponents(
             new ButtonBuilder()
-              .setCustomId("link")
+              .setURL("https://github.com/DemsarMa/osu-dnp'")
               .setLabel("GitHub link")
               .setStyle(ButtonStyle.Link)
           );

@@ -1,5 +1,6 @@
 const axios = require("axios");
 const fs = require('fs');
+const jwt_decode = require('jwt-decode');
 const dotenv = require("dotenv");
 dotenv.config();
 const osuid = process.env.OSU_CLIENT_ID;
@@ -15,7 +16,7 @@ async function osu_authorize() {
             scope: "public",
         });
         console.log("osu! API authorization successful.");
-        process.env.OSU_ACCESS_TOKEN = response.data.access_token;
+        return response.data.access_token;
     } catch (error) {
         if (error.response.status === 401) {
             console.log("osu! API authorization failed.");
@@ -29,4 +30,28 @@ async function osu_authorize() {
     }
 }
 
-module.exports = { osu_authorize };
+async function is_token_valid(token) {
+if (token.exp < Math.floor(Date.now() / 1000)) {
+    console.log("Access token expired, refreshing...");
+    access_token = await osu_authorize();
+    return access_token;
+} else {
+    console.log("Access token valid, no need to refresh.");
+    return access_token;
+}
+}
+
+let access_token;
+
+module.exports.getToken = async () => {
+    if (access_token !== undefined) {
+        const token_decoded = jwt_decode(access_token);
+        const a_token = await is_token_valid(token_decoded);
+        return a_token;
+    } else {
+        console.log("Access token doesn't exist, creating new one...");
+        access_token = await osu_authorize();
+        return access_token;
+    }
+};
+

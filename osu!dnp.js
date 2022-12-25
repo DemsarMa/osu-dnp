@@ -5,10 +5,9 @@ const axios = require("axios");
 const dotenv = require("dotenv");
 dotenv.config();
 const { watchModel } = require("./models/watch.model");
-const { osu_authorize } = require("./modules/osu_login");
+const { getToken } = require("./modules/osu_login");
 const Sentry = require("@sentry/node");
 const Tracing = require("@sentry/tracing");
-const jwt_decode = require('jwt-decode');
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages],
 });
@@ -38,13 +37,6 @@ client.on("ready", async () => {
     console.log("osu!dnp bot is ready! Start making scores!");
     client.user.setActivity("osu!dnp", { type: "PLAYING" });
     client.user.setStatus("online");
-    const token_decoded = jwt_decode(process.env.OSU_ACCESS_TOKEN);
-    if (token_decoded.exp < Math.floor(Date.now() / 1000)) {
-        console.log("Access token expired, refreshing...");
-        await osu_authorize();
-    } else {
-        console.log("Access token valid, no need to refresh.");
-    }
 });
 
 //slash command initialization
@@ -96,7 +88,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 //score request
 async function osu_get_user_scores(user_id, params) {
-    const access_token = process.env.OSU_ACCESS_TOKEN;
+    const access_token = await getToken();
     try {
         const { data } = await axios.get(endpoint + "users/" + user_id + "/scores/recent", {
             headers: {
