@@ -5,13 +5,13 @@ dotenv.config();
 const endpoint = "https://osu.ppy.sh/api/v2/";
 const axios = require("axios");
 const { watchModel } = require("../models/watch.model");
-const { osu_authorize } = require("../modules/osu_login");
 
 async function osu_get_user(osu_id, params) {
+    const access_token = process.env.OSU_ACCESS_TOKEN;
     try {
         const { data } = await axios.get(endpoint + "users/" + osu_id, {
             headers: {
-                Authorization: "Bearer " + (await osu_authorize()),
+                Authorization: "Bearer " + access_token,
             },
             params,
         });

@@ -6,11 +6,33 @@ const dotenv = require("dotenv");
 dotenv.config();
 const { watchModel } = require("./models/watch.model");
 const { osu_authorize } = require("./modules/osu_login");
+const Sentry = require("@sentry/node");
+const Tracing = require("@sentry/tracing");
 const jwt_decode = require('jwt-decode');
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages],
 });
 client.login(process.env.DISCORD_TOKEN);
+
+Sentry.init({
+    dsn: process.env.DSN,
+    tracesSampleRate: 1.0,
+});
+
+const transaction = Sentry.startTransaction({
+    op: "osu!dnp",
+    name: "osu! Now Playing Bot",
+});
+
+setTimeout(() => {
+    try {
+        foo();
+    } catch (e) {
+        Sentry.captureException(e);
+    } finally {
+        transaction.finish();
+    }
+}, 99);
 
 client.on("ready", async () => {
     console.log("osu!dnp bot is ready! Start making scores!");
