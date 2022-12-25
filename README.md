@@ -21,7 +21,7 @@ The bot is relatively new and it's still in development, so there are some limit
 
 ## Self-hosting
 
-If you want to host the bot yourself, you can follow the instructions below. I don't recommend self-hosting the bot, because it's not stable yet and it's not optimized for self-hosting. Heads up, you will need to supply a temporary access token, otherwise the bot will not work.
+If you want to host the bot yourself, you can follow the instructions below. I don't recommend self-hosting the bot, because it's not stable yet and it's not optimized for self-hosting.
 ## Perequisites
 
 - <kbd>Node</kbd> (required, obtain it here: https://nodejs.org/en/, LTS works fine, but you can use the latest version if you want)
@@ -48,7 +48,6 @@ DISCORD_CATEGORY_ID=<category ID where the bot can create channels>
 GUILD_ID=<your server ID>
 APP_ID=<App ID of your Discord application>
 MONGO_URI=<URI>
-OSU_ACCESS_TOKEN=<dummy token mentioned earlier>
 ```
 
 That's all, your bot should work now!
