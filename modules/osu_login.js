@@ -36,7 +36,6 @@ if (token.exp < Math.floor(Date.now() / 1000)) {
     access_token = await osu_authorize();
     return access_token;
 } else {
-    console.log("Access token valid, no need to refresh.");
     return access_token;
 }
 }
