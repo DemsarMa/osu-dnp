@@ -92,7 +92,7 @@ module.exports = {
             description:
                 "osu!dnp will now send a message to this channel every time " + osu_user.username + " plays a new beatmap: " + dc_channel,
         };
-        await watchModel.create({ osu_id, watch_channel, osu_score_db: 0 });
+        await watchModel.create({ osu_id, watch_channel, osu_score_db: 0, osu_user: osu_user.username, discord_user: interaction.user.id });
         await interaction.followUp({ embeds: [assign_embed] });
     },
 };

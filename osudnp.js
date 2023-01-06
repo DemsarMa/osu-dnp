@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { Client, Intents, GatewayIntentBits, Collection, REST, Routes, Events } = require("discord.js");
+const { Client, Intents, GatewayIntentBits, Collection, REST, Routes, Events, StringSelectMenuBuilder, ActionRowBuilder, EmbedBuilder, ActivityType } = require("discord.js");
 const axios = require("axios");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -25,7 +25,7 @@ const transaction = Sentry.startTransaction({
 
 setTimeout(() => {
     try {
-        foo();
+        throw new Error("An error occurred!");
     } catch (e) {
         Sentry.captureException(e);
     } finally {
@@ -35,7 +35,7 @@ setTimeout(() => {
 
 client.on("ready", async () => {
     console.log("osu!dnp bot is ready! Start making scores!");
-    client.user.setActivity("osu!dnp", { type: "PLAYING" });
+    client.user.setActivity("players on osu!", { type: ActivityType.Watching });
     client.user.setStatus("online");
 });
 
@@ -68,6 +68,8 @@ let seconds = date_ob.getSeconds();
 //slash command handler
 client.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
+    if (!interaction.isAutocomplete) return;
+    if (!interaction.isStringSelectMenu()) return;
     const command = interaction.client.commands.get(interaction.commandName);
     
     if (!command) {
@@ -153,7 +155,7 @@ client.on("ready", async () => {
                     text: "osu!dnp",
                 },
                 thumbnail: {
-                    url: "https://assets.ppy.sh/beatmaps/" + score[0].beatmapset.id + "/covers/cover.jpg",
+                    url: "https://assets.ppy.sh/beatmaps/" + score[0].beatmapset.id + "/covers/list.jpg",
                 },
                 author: {
                     name: score[0].user.username + " was playing " + score[0].beatmapset.title + " [" + score[0].beatmap.version + "]",
@@ -174,6 +176,21 @@ client.on("ready", async () => {
                     {
                         name: "Star rating",
                         value: "" + score[0].beatmap.difficulty_rating + "*",
+                        inline: true,
+                    },
+                    {
+                        name: "PP count (if FC)",
+                        value: "" + score[0].pp + "pp",
+                        inline: true,
+                    },
+                    {
+                        name: "FC?",
+                        value: score[0].rank == "F" ? "No" : "Yes",
+                        inline: true,
+                    },
+                    {
+                        name: "Mods",
+                        value: score[0].mods.length == 0 ? "No mods" : score[0].mods.join(", "),
                         inline: true,
                     },
                 ],
