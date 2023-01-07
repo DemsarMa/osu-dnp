@@ -17,15 +17,9 @@ module.exports = {
     data: new SlashCommandBuilder().setName("unwatch").setDescription("Stop a watch session for a user"),
 
     async execute(interaction) {
-        const dc_id = interaction.user.id;
-        const osu_data = await watchModel.findOne({ discord_id: dc_id }, { osu_id: 1, watch_channel: 1, osu_user: 1 });
-        const osu_id = osu_data.osu_id;
-        const osu_user = osu_data.osu_user;
-        const watch_channel = osu_data.watch_channel;
-        console.log("osu_id: ", osu_id);
-        console.log("watch_channel: ", watch_channel);
-        console.log("dc_id: ", dc_id);
-        console.log("osu_user: ", osu_user);
+        const users = (await watchModel.find({ discord_id: interaction.user.id })).slice(0, 20);
+        const choices = users.map((it) => ({ label: it.osu_user, value: it.osu_id }));
+        const description = users.map((it) => `${it.osu_id} (${it.osu_user}), ${it.watch_channel}`).join('\n');
 
         const select_embed = {
             color: 16711680,
@@ -36,20 +30,12 @@ module.exports = {
             fields: [
                 {
                     name: "Select a user to unwatch",
-                    value: osu_id + " (" + osu_user + "), " + watch_channel,
+                    value: description,
                 },
             ],
         };
 
-        const sel_menu = new StringSelectMenuBuilder()
-            .setCustomId("select_osu_id")
-            .setPlaceholder("Nothing selected")
-            .addOptions([
-                {
-                    label: "MtkoGaming",
-                    value: osu_id,
-                },
-            ]);
+        const sel_menu = new StringSelectMenuBuilder().setCustomId('select_osu_id').setPlaceholder('Nothing selected').addOptions(choices);
         const row = new ActionRowBuilder().addComponents(sel_menu);
 
         await interaction.reply({ embeds: [select_embed], components: [row], ephemeral: true });
@@ -66,7 +52,7 @@ module.exports = {
                 console.log("dc_channel_id: ", dc_channel_id);
                 await interaction.guild.channels.delete(dc_channel_id);
                 await watchModel.deleteOne({ osu_id: osu_id_del });
-                await interaction.editReply({ content: `You are no longer watching ${osu_id_del}`, components: [] });
+                await interaction.editReply({ content: `You are no longer watching **${osu_user}**`, components: [] });
             }
         });
         collector.on("end", async (collected) => {
