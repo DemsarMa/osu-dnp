@@ -178,7 +178,7 @@ client.on("ready", async () => {
                     },
                     {
                         name: "PP count (if FC)",
-                        value: "" + score[0].pp + "pp",
+                        value: score[0].rank == "F" ? "/" : "" + score[0].pp + "pp",
                         inline: true,
                     },
                     {
