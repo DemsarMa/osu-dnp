@@ -23,16 +23,6 @@ const transaction = Sentry.startTransaction({
     name: "osu! Now Playing Bot",
 });
 
-setTimeout(() => {
-    try {
-        foo();
-    } catch (e) {
-        Sentry.captureException(e);
-    } finally {
-        transaction.finish();
-    }
-}, 99);
-
 client.on("ready", async () => {
     console.log("osu!dnp bot is ready! Start making scores!");
     client.user.setActivity("players on osu!", { type: ActivityType.Watching });
@@ -74,12 +64,14 @@ client.on(Events.InteractionCreate, async (interaction) => {
     
     if (!command) {
         console.error(`No command matching ${interaction.commandName} was found.`);
+        Sentry.captureException(`No command matching ${interaction.commandName} was found.`);
         return;
     }
     
     try {
         await command.execute(interaction);
     } catch (error) {
+        Sentry.captureException(error);
         console.error(error);
         await interaction.reply({
             content: "There was an error while executing this command!",
@@ -102,21 +94,27 @@ async function osu_get_user_scores(user_id, params) {
     } catch (error) {
         if (error.response.status === 404) {
             console.log("User not found!, osu!dnp osu_get_user_scores");
+            Sentry.captureException("User not found!, osu!dnp osu_get_user_scores, 404");
             return;
         } else if (error.response.status === 403) {
             console.log("Forbidden, osu!dnp osu_get_user_scores");
+            Sentry.captureException("Forbidden, osu!dnp osu_get_user_scores, 403");
             return;
         } else if (error.response.status === 401) {
             console.log("Unauthorized, osu!dnp osu_get_user_scores");
+            Sentry.captureException("Unauthorized, osu!dnp osu_get_user_scores, 401");
             return;
         } else if (error.response.status === 429) {
             console.log("Too many requests, blame osu!, osu!dnp osu_get_user_scores");
+            Sentry.captureException("Too many requests, blame osu!, osu!dnp osu_get_user_scores, 429");
             return;
         } else if (error.response.status === 500) {
             console.log("Internal server error on osu!, osu!dnp osu_get_user_scores");
+            Sentry.captureException("Internal server error on osu!, osu!dnp osu_get_user_scores, 500");
             return; 
         } else {
             console.log("An unknown error has occured, osu!dnp osu_get_user_scores", error);
+            Sentry.captureException("An unknown error has occured, osu!dnp osu_get_user_scores, " + error);
         }
     }
 }
