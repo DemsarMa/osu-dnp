@@ -178,12 +178,17 @@ client.on("ready", async () => {
                     },
                     {
                         name: "PP count (if FC)",
-                        value: score[0].rank == "F" ? "/" : "" + score[0].pp + "pp",
+                        value: score[0].pp == null ? "0pp" : "" + score[0].pp + "pp", 
                         inline: true,
                     },
                     {
                         name: "FC?",
-                        value: score[0].rank == "F" ? "No" : "Yes",
+                        value: score[0].score == score[0].beatmap.max_combo ? "Yes" : "No",
+                        inline: true,
+                    },
+                    {
+                        name: "Pass?",
+                        value: score[0].passed == "true" ? "Yes" : "No",
                         inline: true,
                     },
                     {
@@ -191,6 +196,11 @@ client.on("ready", async () => {
                         value: score[0].mods.length == 0 ? "No mods" : score[0].mods.join(", "),
                         inline: true,
                     },
+                    {
+                        name: "Map type",
+                        value: score[0].beatmap.ranked == 1 ? "Ranked" : score[0].beatmap.ranked == 2 ? "Approved" : score[0].beatmap.ranked == 3 ? "Qualified" : score[0].beatmap.ranked == 4 ? "Loved" : "Unranked",
+                        inline: true,
+                    }
                 ],
             };
             client.channels.cache.get(dc_channel_id).send({ embeds: [embed] });
