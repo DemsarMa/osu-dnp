@@ -11,13 +11,15 @@ Join the official Discord server if you want to watch your plays: https://discor
 
 To start watching your recent plays, simply type `/watch` in #bot-commands (on my server above) and enter your ID beside the command (find the id here: https://osu.ppy.sh/users/<ID>). The bot will start watching your recent plays and will send them to your Discord channel.
 
+To stop watching your recent plays, type `/unwatch` and then select a user to unwatch.
+
 **DISCLAIMER**:
-The bot will **NEVER** collect any of your data, the app is only required for the bot to read the profile and recent activity (such as your recent plays), nothing else!
+The bot will **NEVER** collect any of your data, the bot will only read the profile and recent activity (such as your recent plays), nothing else!
 ## Limitations
 
 The bot is relatively new and it's still in development, so there are some limitations:
 
-- The bot cannot remove your plays from the channel, so if you want to stop watching your plays, you have to ping me to remove it for you. That's because the bot doesn't yet have the ability to do that.
+- ~~The bot cannot remove your plays from the channel, so if you want to stop watching your plays, you have to ping me to remove it for you. That's because the bot doesn't yet have the ability to do that.~~ Has been added in latest release.
 
 ## Self-hosting
 

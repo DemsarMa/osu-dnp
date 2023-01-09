@@ -150,7 +150,7 @@ client.on("ready", async () => {
                 timestamp: new Date(),
                 footer: {
                     icon_url: "https://a.ppy.sh/" + score[0].user.id,
-                    text: "osu!dnp",
+                    text: "osu!dnp - " + score[0].beatmap.ranked == 1 ? "Ranked" : score[0].beatmap.ranked == 2 ? "Approved" : score[0].beatmap.ranked == 3 ? "Qualified" : score[0].beatmap.ranked == 4 ? "Loved" : "Unranked",
                 },
                 thumbnail: {
                     url: "https://assets.ppy.sh/beatmaps/" + score[0].beatmapset.id + "/covers/list.jpg",
@@ -177,7 +177,7 @@ client.on("ready", async () => {
                         inline: true,
                     },
                     {
-                        name: "PP count (if FC)",
+                        name: "PP count",
                         value: score[0].pp == null ? "0pp" : "" + score[0].pp + "pp", 
                         inline: true,
                     },
@@ -188,7 +188,7 @@ client.on("ready", async () => {
                     },
                     {
                         name: "Pass?",
-                        value: score[0].passed == "true" ? "Yes" : "No",
+                        value: score.passed == "true" ? "Yes" : "No",
                         inline: true,
                     },
                     {
@@ -196,11 +196,6 @@ client.on("ready", async () => {
                         value: score[0].mods.length == 0 ? "No mods" : score[0].mods.join(", "),
                         inline: true,
                     },
-                    {
-                        name: "Map type",
-                        value: score[0].beatmap.ranked == 1 ? "Ranked" : score[0].beatmap.ranked == 2 ? "Approved" : score[0].beatmap.ranked == 3 ? "Qualified" : score[0].beatmap.ranked == 4 ? "Loved" : "Unranked",
-                        inline: true,
-                    }
                 ],
             };
             client.channels.cache.get(dc_channel_id).send({ embeds: [embed] });
