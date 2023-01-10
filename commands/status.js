@@ -1,5 +1,6 @@
 const { Client, SlashCommandBuilder, Collection, ChannelType, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, } = require("discord.js");
 const { watchModel } = require("../models/watch.model");
+const git = require("git-last-commit");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -21,6 +22,10 @@ module.exports = {
         const hourCount = Math.floor(uptimeHour - dayCount * 24);
         const minCount = Math.floor(uptimeMin - dayCount * 24 * 60 - hourCount * 60);
         const secCount = Math.floor(uptimeSec - dayCount * 24 * 60 * 60 - hourCount * 60 * 60 - minCount * 60);
+
+        const lastCommit = await new Promise((resolve, reject) => {
+            git.getLastCommit((err, commit) => { if (err) { reject(err); } else { resolve(commit); } }); });
+        const commitMessage = lastCommit.subject;
 
         const status_embed = {
             color: 16711680,
@@ -53,7 +58,7 @@ module.exports = {
                 },
                 {
                     name: "Version",
-                    value: "v1.1.5",
+                    value: commitMessage,
                 }
             ],
         };

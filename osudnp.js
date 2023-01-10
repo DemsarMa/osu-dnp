@@ -59,8 +59,6 @@ let seconds = date_ob.getSeconds();
 //slash command handler
 client.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
-    if (!interaction.isAutocomplete) return;
-    if (!interaction.isStringSelectMenu()) return;
     const command = interaction.client.commands.get(interaction.commandName);
     
     if (!command) {
