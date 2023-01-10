@@ -26,7 +26,7 @@ const transaction = Sentry.startTransaction({
 client.on("ready", async () => {
     console.log("osu!dnp bot is ready! Start making scores!");
     const watchCount = await watchModel.countDocuments(); 
-    client.user.setActivity(watchCount + "players on osu!", { type: ActivityType.Watching });
+    client.user.setActivity(watchCount + " players on osu!", { type: ActivityType.Watching });
     client.user.setStatus("online");
 });
 
