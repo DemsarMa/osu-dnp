@@ -112,6 +112,22 @@ async function osu_get_user_scores(user_id, params) {
             console.log("Internal server error on osu!, osu!dnp osu_get_user_scores");
             Sentry.captureException("Internal server error on osu!, osu!dnp osu_get_user_scores, 500");
             return; 
+        } else if (error.response.status === 503) {
+            console.log("Service unavailable on osu!, osu!dnp osu_get_user_scores");
+            Sentry.captureException("Service unavailable on osu!, osu!dnp osu_get_user_scores, 503");
+            return;
+        } else if (error.response.status === 504) {
+            console.log("Gateway timeout on osu!, osu!dnp osu_get_user_scores");
+            Sentry.captureException("Gateway timeout on osu!, osu!dnp osu_get_user_scores, 504");
+            return;
+        } else if (error.response.status === 502) {
+            console.log("Bad gateway on osu!, osu!dnp osu_get_user_scores");
+            Sentry.captureException("Bad gateway on osu!, osu!dnp osu_get_user_scores, 502");
+            return;
+        } else if (error.response.status === 520) {
+            console.log("Unknown error on osu!, osu!dnp osu_get_user_scores");
+            Sentry.captureException("Unknown error on osu!, osu!dnp osu_get_user_scores, 520");
+            return;
         } else {
             console.log("An unknown error has occured, osu!dnp osu_get_user_scores", error);
             Sentry.captureException("An unknown error has occured, osu!dnp osu_get_user_scores, " + error);
@@ -150,7 +166,7 @@ client.on("ready", async () => {
                 timestamp: new Date(),
                 footer: {
                     icon_url: "https://a.ppy.sh/" + score[0].user.id,
-                    text: "osu!dnp - " + score[0].beatmap.ranked == 1 ? "Ranked" : score[0].beatmap.ranked == 2 ? "Approved" : score[0].beatmap.ranked == 3 ? "Qualified" : score[0].beatmap.ranked == 4 ? "Loved" : "Unranked",
+                    text: `osu!dnp - ${score[0].beatmap.ranked == 1 ? "Ranked" : score[0].beatmap.ranked == 2 ? "Approved" : score[0].beatmap.ranked == 3 ? "Qualified" : score[0].beatmap.ranked == 4 ? "Loved" : "Unranked"}`,
                 },
                 thumbnail: {
                     url: "https://assets.ppy.sh/beatmaps/" + score[0].beatmapset.id + "/covers/list.jpg",
@@ -187,15 +203,10 @@ client.on("ready", async () => {
                         inline: true,
                     },
                     {
-                        name: "Pass?",
-                        value: score.passed == "true" ? "Yes" : "No",
-                        inline: true,
-                    },
-                    {
                         name: "Mods",
                         value: score[0].mods.length == 0 ? "No mods" : score[0].mods.join(", "),
                         inline: true,
-                    },
+                    }
                 ],
             };
             client.channels.cache.get(dc_channel_id).send({ embeds: [embed] });
