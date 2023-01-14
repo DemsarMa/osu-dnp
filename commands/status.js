@@ -46,7 +46,7 @@ module.exports = {
                 },
                 {
                     name: "API latency",
-                    value: `${sent.createdTimestamp - interaction.createdTimestamp}ms`,
+                    value: `${date - interaction.createdTimestamp}` + "ms",
                 },
                 {
                     name: "Uptime",
