@@ -1,17 +1,7 @@
-const { Client, SlashCommandBuilder, Collection, ChannelType, GatewayIntentBits, ActionRowBuilder, StringSelectMenuBuilder, Events, EmbedBuilder, } = require("discord.js");
-const mongoose = require("../mongoose");
+const { SlashCommandBuilder, ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder, } = require("discord.js");
 const dotenv = require("dotenv");
 dotenv.config();
 const { watchModel } = require("../models/watch.model");
-
-/*pseudo code
-user types /unwatch
-bot sends a message with a dropdown menu with all the users they are watching
-user selects a user
-bot fetches the user_id from the database
-bot deletes the user from the database
-bot modifies the embed to say "You are no longer watching this user"
-*/
 
 module.exports = {
     data: new SlashCommandBuilder().setName("unwatch").setDescription("Stop a watch session for a user"),

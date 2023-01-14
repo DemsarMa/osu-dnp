@@ -1,5 +1,4 @@
-const { Client, SlashCommandBuilder, Collection, ChannelType, GatewayIntentBits } = require("discord.js");
-const mongoose = require("../mongoose");
+const { SlashCommandBuilder, ChannelType } = require("discord.js");
 const dotenv = require("dotenv");
 dotenv.config();
 const endpoint = "https://osu.ppy.sh/api/v2/";

@@ -1,4 +1,4 @@
-const { Client, SlashCommandBuilder, Collection, ChannelType, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, } = require("discord.js");
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, } = require("discord.js");
 const { watchModel } = require("../models/watch.model");
 const git = require("git-last-commit");
 const dotenv = require("dotenv");
@@ -41,8 +41,12 @@ module.exports = {
             },
             fields: [
                 {
-                    name: "Ping",
+                    name: "Websocket heartbeat",
                     value: ping + "ms",
+                },
+                {
+                    name: "API latency",
+                    value: `${sent.createdTimestamp - interaction.createdTimestamp}ms`,
                 },
                 {
                     name: "Uptime",
@@ -50,7 +54,7 @@ module.exports = {
                 },
                 {
                     name: "Server time (GMT+1)",
-                    value: date.toLocaleString("en-GB", { timeZone: "Europe/London" }),
+                    value: date.toLocaleString("en-GB", { timeZone: "Europe/Ljubljana" }),
                 },
                 {
                     name: "Watch Count",
