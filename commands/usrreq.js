@@ -130,7 +130,7 @@ module.exports = {
                 url: "https://a.ppy.sh/" + osu_id,
             },
             author: {
-                name: "Raw score response for " + usr.username,
+                name: "Raw user response for " + usr.username,
             },
             description: "```" + JSON.stringify(usr, null, 2) + "```",
         };
