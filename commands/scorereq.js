@@ -1,10 +1,22 @@
-const { SlashCommandBuilder, Guild, escapeHeading } = require("discord.js");
+const { Client, SlashCommandBuilder, Collection, ChannelType, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 const dotenv = require("dotenv");
 dotenv.config();
 const endpoint = "https://osu.ppy.sh/api/v2/";
 const axios = require("axios");
 const { getToken } = require("../modules/osu_login");
-const { extractPathForTransaction } = require("@sentry/utils");
+const Sentry = require("@sentry/node");
+const Tracing = require("@sentry/tracing");
+
+Sentry.init({
+    dsn: process.env.DSN,
+    tracesSampleRate: 1.0,
+});
+
+const transaction = Sentry.startTransaction({
+    op: "osu!dnp",
+    name: "osu! Now Playing Bot",
+});
+
 
 async function osu_get_user_scores(user_id, params) {
     const access_token = await getToken();

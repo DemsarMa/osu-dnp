@@ -1,7 +1,6 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+const { Client, SlashCommandBuilder, Collection, ChannelType, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 const dotenv = require("dotenv");
 dotenv.config();
-
 
 module.exports = {
     data: new SlashCommandBuilder()

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, } = require("discord.js");
+const { Client, SlashCommandBuilder, Collection, ChannelType, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 const { watchModel } = require("../models/watch.model");
 const git = require("git-last-commit");
 const dotenv = require("dotenv");
