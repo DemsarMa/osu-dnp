@@ -102,11 +102,12 @@ module.exports = {
                 "(example: `https://osu.ppy.sh/users/2341251` -> `2341251`)",
         };
 
+        const osu_id = interaction.options.getString("osu_user_id");
+        
         if (isNaN(osu_id)) {
             return await interaction.followUp({ embeds: [not_id_embed] });
         }
 
-        const osu_id = interaction.options.getString("osu_user_id");
         const usr = await osu_get_user(osu_id, {
             include_follower_count: true,
             include_following_count: true,

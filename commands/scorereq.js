@@ -87,7 +87,7 @@ module.exports = {
         }
         
         await interaction.deferReply();
-
+        
         const not_id_embed = {
             color: 16711680,
             timestamp: new Date(),
@@ -100,13 +100,14 @@ module.exports = {
             description:
                 "You can find the ID by copying final digits\n" +
                 "(example: `https://osu.ppy.sh/users/2341251` -> `2341251`)",
-        };
-
+            };
+            
+        const osu_id = interaction.options.getString("osu_user_id");
+        
         if (isNaN(osu_id)) {
             return await interaction.followUp({ embeds: [not_id_embed] });
         }
 
-        const osu_id = interaction.options.getString("osu_user_id");
         const score = await osu_get_user_scores(osu_id, {
             mode: "osu",
             limit: 1,
