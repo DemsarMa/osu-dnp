@@ -27,6 +27,12 @@ async function osu_get_user(user_id, params) {
             },
             params,
         });
+        delete data["cover"];
+        delete data["monthly_playcounts"];
+        delete data["page"];
+        delete data["user_achievements"];
+        delete data["rank_history"];
+        delete data["rankHistory"];
         return data;
     } catch (error) {
         if (error.response.status === 404) {
@@ -103,20 +109,17 @@ module.exports = {
         };
 
         const osu_id = interaction.options.getString("osu_user_id");
-        
+
         if (isNaN(osu_id)) {
             return await interaction.followUp({ embeds: [not_id_embed] });
         }
 
         const usr = await osu_get_user(osu_id, {
-            include_follower_count: true,
-            include_following_count: true,
-            include_kudosu: true,
-            include_total_seconds_played: true
+            mode: "osu"
         }).finally(() => {
             console.log("Command executed: usrreq for " + osu_id);
         });
-
+        
         const assign_embed = {
             color: 1501988,
             timestamp: new Date(),

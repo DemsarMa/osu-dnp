@@ -103,7 +103,7 @@ module.exports = {
             };
             
         const osu_id = interaction.options.getString("osu_user_id");
-        
+
         if (isNaN(osu_id)) {
             return await interaction.followUp({ embeds: [not_id_embed] });
         }
@@ -126,7 +126,7 @@ module.exports = {
                 url: "https://a.ppy.sh/" + osu_id,
             },
             author: {
-                name: "Raw score response for " + score.username,
+                name: "Raw score response for " + score.user_username,
             },
             description: "```" + JSON.stringify(score, null, 2) + "```",
         };
