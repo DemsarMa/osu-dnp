@@ -8,6 +8,7 @@ const { watchModel } = require("./models/watch.model");
 const { getToken } = require("./modules/osu_login");
 const Sentry = require("@sentry/node");
 const Tracing = require("@sentry/tracing");
+const { calculateStarRating } = require("osu-sr-calculator");
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages],
 });
@@ -147,6 +148,11 @@ client.on("ready", async () => {
             console.log("osu!dnp osu_get_user_scores for ", val.osu_id, " has been executed");
         });
 
+        const mods = score[0].mods.length == 0 ? "" : score[0].mods;
+        const modsString = mods.join("");
+        const starRating = await calculateStarRating(score[0].beatmap.id, mods, false, true);
+        const starRatingFiltered = starRating[modsString].total.toFixed(2);
+
         if (score.length == 0) {
             return;
         }
@@ -188,7 +194,7 @@ client.on("ready", async () => {
                     },
                     {
                         name: "Star rating",
-                        value: "" + score[0].beatmap.difficulty_rating + "*",
+                        value: starRatingFiltered + "*",
                         inline: true,
                     },
                     {
@@ -203,7 +209,7 @@ client.on("ready", async () => {
                     },
                     {
                         name: "Mods",
-                        value: score[0].mods.length == 0 ? "No mods" : score[0].mods.join(", "),
+                        value: score[0].mods.length == 0 ? "/" : score[0].mods.join(", "),
                         inline: true,
                     }
                 ],

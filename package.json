@@ -7,8 +7,10 @@
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
     "enmap": "^5.9.2",
+    "git-last-commit": "^1.0.1",
     "jwt-decode": "^3.1.2",
     "mongoose": "^6.7.3",
+    "osu-sr-calculator": "^1.0.13",
     "rest": "^2.0.0"
   }
 }
