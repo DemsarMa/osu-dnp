@@ -116,6 +116,14 @@ module.exports = {
             console.log("Command executed: scorereq for " + osu_id);
         });
 
+        if (!score) {
+            return await interaction.followUp({ content: "An error has occured, please try again later." });
+        }
+
+        if (score.length === 0) {
+            return await interaction.followUp({ content: "No scores found for this user!" });
+        }
+
         const assign_embed = {
             color: 1501988,
             timestamp: new Date(),

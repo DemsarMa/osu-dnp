@@ -148,14 +148,15 @@ client.on("ready", async () => {
             console.log("osu!dnp osu_get_user_scores for ", val.osu_id, " has been executed");
         });
 
+        if (score.length == 0) {
+            return;
+        }
+        
         const mods = score[0].mods.length == 0 ? ["NM"] : score[0].mods;
         const modsString = mods.join("");
         const starRating = await calculateStarRating(score[0].beatmap.id, mods, false, true);
         const starRatingFiltered = starRating[modsString].total.toFixed(2);
 
-        if (score.length == 0) {
-            return;
-        }
         if (val.osu_id == score[0].beatmap.id) {
             return;
         }
