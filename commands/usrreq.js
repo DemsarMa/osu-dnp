@@ -33,6 +33,8 @@ async function osu_get_user(user_id, params) {
         delete data["user_achievements"];
         delete data["rank_history"];
         delete data["rankHistory"];
+        delete data["profile_order"];
+        delete data["replays_watched_counts"];
         return data;
     } catch (error) {
         if (error.response.status === 404) {
