@@ -227,5 +227,5 @@ client.on("ready", async () => {
             client.channels.cache.get(dc_channel_id).send({ embeds: [embed_no_score] });
         }
     })});
-    }, 8000);
+    }, 15000);
 });
