@@ -155,7 +155,6 @@ client.on("ready", async () => {
         
         const modsTemp = score[0].mods.length == 0 ? ["NM"] : score[0].mods;
         const modsString = modsTemp.join("");
-        console.log(modsString);
         const beatmapInfo = await MapInfo.getInformation(score[0].beatmap.id);
         if (!beatmapInfo.title) {
             console.log("osu!dnp MapInfo for ", score[0].beatmap.id, " has failed! Map not found!");
@@ -164,8 +163,6 @@ client.on("ready", async () => {
         const mods = ModUtil.pcStringToMods(modsString);
         const osuRating = new MapStars(beatmapInfo.beatmap, { mods: mods });
         const osuPerformance = new OsuPerformanceCalculator(osuRating.osu.attributes).calculate();
-        console.log("PP: ", osuPerformance.total.toFixed(2));
-        console.log("Star rating: ", osuRating.osu.attributes.starRating.toFixed(2));
 
         if (val.osu_id == score[0].beatmap.id) {
             return;
