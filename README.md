@@ -3,7 +3,7 @@
 
 This tool allows you to track maps that you've played them during your osu! session! It's made purely with osu! API v2!
 
-So how does it work? It's simple, the bot will check your recent plays every 8 seconds and if it finds a new play, it will send it to your dedicated Discord channel!
+So how does it work? It's simple, the bot will check your recent plays every 15 seconds and if it finds a new play, it will send it to your dedicated Discord channel!
 
 Join the official Discord server if you want to watch your plays: https://discord.com/invite/APmh25WagY
 

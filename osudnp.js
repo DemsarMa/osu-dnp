@@ -8,7 +8,8 @@ const { watchModel } = require("./models/watch.model");
 const { getToken } = require("./modules/osu_login");
 const Sentry = require("@sentry/node");
 const Tracing = require("@sentry/tracing");
-const { calculateStarRating } = require("osu-sr-calculator");
+const { MapInfo, ModUtil } = require("@rian8337/osu-base");
+const { MapStars, OsuDifficultyCalculator, OsuPerformanceCalculator } = require("@rian8337/osu-difficulty-calculator");
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages],
 });
@@ -152,10 +153,19 @@ client.on("ready", async () => {
             return;
         }
         
-        const mods = score[0].mods.length == 0 ? ["NM"] : score[0].mods;
-        const modsString = mods.join("");
-        const starRating = await calculateStarRating(score[0].beatmap.id, mods, false, true);
-        const starRatingFiltered = starRating[modsString].total.toFixed(2);
+        const modsTemp = score[0].mods.length == 0 ? ["NM"] : score[0].mods;
+        const modsString = modsTemp.join("");
+        console.log(modsString);
+        const beatmapInfo = await MapInfo.getInformation(score[0].beatmap.id);
+        if (!beatmapInfo.title) {
+            console.log("osu!dnp MapInfo for ", score[0].beatmap.id, " has failed! Map not found!");
+            Sentry.captureException("osu!dnp MapInfo for " + score[0].beatmap.id + " has failed! Map not found!");
+        }
+        const mods = ModUtil.pcStringToMods(modsString);
+        const osuRating = new MapStars(beatmapInfo.beatmap, { mods: mods });
+        const osuPerformance = new OsuPerformanceCalculator(osuRating.osu.attributes).calculate();
+        console.log("PP: ", osuPerformance.total.toFixed(2));
+        console.log("Star rating: ", osuRating.osu.attributes.starRating.toFixed(2));
 
         if (val.osu_id == score[0].beatmap.id) {
             return;
@@ -195,12 +205,12 @@ client.on("ready", async () => {
                     },
                     {
                         name: "Star rating",
-                        value: starRatingFiltered + "*",
+                        value: osuRating.osu.attributes.starRating.toFixed(2) + "*",
                         inline: true,
                     },
                     {
                         name: "PP count",
-                        value: score[0].pp == null ? "0pp" : "" + score[0].pp + "pp", 
+                        value: osuPerformance.total.toFixed(2) + "pp", 
                         inline: true,
                     },
                     {
