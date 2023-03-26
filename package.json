@@ -17,10 +17,10 @@
   },
   "scripts": {
     "start": "node osudnp.js --trace-warnings --trace-deprecation --trace-sync-io --trace-uncaught",
-    "dev": "node test.js --env=.env.dev --trace-warnings --trace-deprecation --trace-sync-io --trace-uncaught"
+    "dev": "node test.js --env=./.env.dev --trace-warnings --trace-deprecation --trace-sync-io --trace-uncaught"
 },
   "name": "osu_now_playing_bot",
-  "version": "1.2.0.1",
+  "version": "1.2.1",
   "description": "osu!dnp",
   "main": "osudnp.js",
   "author": "DemsarMa (MtkoGaming)",

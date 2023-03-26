@@ -153,6 +153,7 @@ client.on("ready", async () => {
             return;
         }
         
+        
         const modsTemp = score[0].mods.length == 0 ? ["NM"] : score[0].mods;
         const modsString = modsTemp.join("");
         const beatmapInfo = await MapInfo.getInformation(score[0].beatmap.id);
@@ -162,7 +163,10 @@ client.on("ready", async () => {
         }
         const mods = ModUtil.pcStringToMods(modsString);
         const osuRating = new MapStars(beatmapInfo.beatmap, { mods: mods });
-        const osuPerformance = new OsuPerformanceCalculator(osuRating.osu.attributes).calculate();
+        const ppRating = new OsuDifficultyCalculator(beatmapInfo.beatmap).calculate({mods: mods});
+        const osuPerformance100 = new OsuPerformanceCalculator(ppRating.attributes).calculate({accPercent: 100});
+        const osuPerformance99 = new OsuPerformanceCalculator(ppRating.attributes).calculate({accPercent: 99});
+        const osuPerformance95 = new OsuPerformanceCalculator(ppRating.attributes).calculate({accPercent: 95});
 
         if (val.osu_id == score[0].beatmap.id) {
             return;
@@ -178,7 +182,7 @@ client.on("ready", async () => {
                 color: 16711680,
                 timestamp: new Date(),
                 footer: {
-                    icon_url: "https://a.ppy.sh/" + score[0].user.id,
+                    icon_url: "https://cdn.discordapp.com/avatars/1043971997643853914/4f63097b29c0b42059d3b3218da356c6.png?size=4096",
                     text: `osu!dnp - ${score[0].beatmap.ranked == 1 ? "Ranked" : score[0].beatmap.ranked == 2 ? "Approved" : score[0].beatmap.ranked == 3 ? "Qualified" : score[0].beatmap.ranked == 4 ? "Loved" : "Unranked"}`,
                 },
                 thumbnail: {
@@ -206,18 +210,28 @@ client.on("ready", async () => {
                         inline: true,
                     },
                     {
-                        name: "PP count",
-                        value: osuPerformance.total.toFixed(2) + "pp", 
+                        name: "PP count (100% FC)",
+                        value: osuPerformance100.total.toFixed(2) + "pp", 
                         inline: true,
                     },
                     {
-                        name: "FC?",
-                        value: score[0].score == score[0].beatmap.max_combo ? "Yes" : "No",
+                        name: "PP count (99% FC)",
+                        value: osuPerformance99.total.toFixed(2) + "pp",
+                        inline: true,
+                    },
+                    {
+                        name: "PP count (95% FC)",
+                        value: osuPerformance95.total.toFixed(2) + "pp",
                         inline: true,
                     },
                     {
                         name: "Mods",
                         value: score[0].mods.length == 0 ? "/" : score[0].mods.join(", "),
+                        inline: true,
+                    },
+                    {
+                        name: "Max combo",
+                        value: osuRating.osu.attributes.maxCombo + "x",
                         inline: true,
                     }
                 ],
